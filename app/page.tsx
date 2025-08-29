@@ -10,32 +10,36 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-card-foreground">Flex Living</h1>
+        <div className="flex flex-col sm:flex-row h-auto sm:h-16 items-start sm:items-center px-4 sm:px-6 py-4 sm:py-0">
+          <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-card-foreground">Flex Living</h1>
           </div>
-          <div className="ml-auto flex items-center space-x-4">
-            <Link href="/documentation">
-              <Button variant="outline">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto sm:ml-auto">
+            <Link href="/documentation" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto text-sm">
                 <Code className="mr-2 h-4 w-4" />
-                Documentation
+                <span className="hidden sm:inline">Documentation</span>
+                <span className="sm:hidden">Docs</span>
               </Button>
             </Link>
-            <Link href="/reviews">
-              <Button variant="outline">
+            <Link href="/reviews" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto text-sm">
                 <Star className="mr-2 h-4 w-4" />
-                View Reviews
+                <span className="hidden sm:inline">View Reviews</span>
+                <span className="sm:hidden">Reviews</span>
               </Button>
             </Link>
-            <Link href="/google-integration">
-              <Button variant="outline">
+            <Link href="/google-integration" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto text-sm">
                 <Globe className="mr-2 h-4 w-4" />
-                Google Integration
+                <span className="hidden sm:inline">Google Integration</span>
+                <span className="sm:hidden">Google</span>
               </Button>
             </Link>
-            <Link href="/dashboard">
-              <Button className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
-                Manager Dashboard
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal text-sm">
+                <span className="hidden sm:inline">Manager Dashboard</span>
+                <span className="sm:hidden">Dashboard</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -44,22 +48,22 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="px-6 py-24">
+      <div className="px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-6">Reviews Dashboard for Property Managers</h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">Reviews Dashboard for Property Managers</h1>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Streamline your review management process with powerful analytics, filtering capabilities, and approval
             workflows designed for Flex Living properties.
           </p>
-          <div className="flex items-center justify-center space-x-4">
-            <Link href="/dashboard">
-              <Button size="lg" className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:space-x-4">
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
                 Open Dashboard
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/reviews">
-              <Button size="lg" variant="outline">
+            <Link href="/reviews" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 <Star className="mr-2 h-5 w-5" />
                 View Public Reviews
               </Button>

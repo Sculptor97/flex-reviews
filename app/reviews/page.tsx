@@ -469,20 +469,20 @@ export default function PublicReviewsPage() {
         )}
 
         {/* Call to Action */}
-        <div className="text-center bg-card rounded-lg p-8 border-2 border-brand-sage">
-          <h2 className="text-2xl font-bold text-card-foreground mb-4">Ready to Experience Flex Living?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+        <div className="text-center bg-card rounded-lg p-6 sm:p-8 border-2 border-brand-sage">
+          <h2 className="text-xl sm:text-2xl font-bold text-card-foreground mb-4">Ready to Experience Flex Living?</h2>
+          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto text-sm sm:text-base">
             Join thousands of satisfied guests who have made Flex Living their home away from home. Book your perfect
             stay today.
           </p>
-          <div className="flex items-center justify-center space-x-4">
-            <Button size="lg" className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:space-x-4">
+            <Button size="lg" className="w-full sm:w-auto bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
               <MapPin className="mr-2 h-5 w-5" />
               Browse Properties
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-brand-cream">
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-brand-cream">
                 Manager Dashboard
               </Button>
             </Link>
