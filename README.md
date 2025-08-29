@@ -187,6 +187,26 @@ pnpm lint         # Run ESLint
 3. Add environment variables in Vercel dashboard
 4. Deploy automatically
 
+### Common Deployment Issues
+
+#### Lockfile Mismatch Error
+If you encounter this error during deployment:
+```
+ERR_PNPM_OUTDATED_LOCKFILE Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date
+```
+
+**Solution:**
+1. Update your `package.json` to use specific versions instead of "latest"
+2. Run `pnpm install` locally to regenerate the lockfile
+3. Commit and push the updated `pnpm-lock.yaml` file
+
+**Example fix:**
+```json
+// Instead of "latest", use specific versions
+"mongoose": "^8.18.0",
+"recharts": "^2.12.0"
+```
+
 ### Other Platforms
 
 The application can be deployed to any platform that supports Next.js:
