@@ -24,34 +24,34 @@ import {
   Radar,
 } from "recharts"
 
+import { ReviewService } from "@/services/reviewService"
+
 interface Review {
   id: string
   propertyId: string
   propertyName: string
   guestName: string
+  guestAvatar?: string
   rating: number
   comment: string
   date: string
   channel: string
-  categories: {
-    cleanliness: number
-    communication: number
-    checkIn: number
-    accuracy: number
-    location: number
-    value: number
-  }
-  hostResponse?: string
-  verified: boolean
-  approved: boolean
-  sentiment: "positive" | "neutral" | "negative"
+  source: string
+  category: string
+  isApproved: boolean
+  approvedBy?: string
+  approvedAt?: string
+  response?: string
+  responseDate?: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface ApiResponse {
   success: boolean
   data: {
     reviews: Review[]
-    summary: {
+    summary?: {
       totalReviews: number
       averageRating: number
       channelBreakdown: Record<string, number>
@@ -59,6 +59,11 @@ interface ApiResponse {
         positive: number
         neutral: number
         negative: number
+      }
+      ratingBreakdown: Record<number, number>
+      approvalBreakdown: {
+        approved: number
+        pending: number
       }
     }
   }
@@ -72,12 +77,11 @@ export default function AnalyticsPage() {
   const fetchReviews = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/reviews/hostaway")
-      const data: ApiResponse = await response.json()
+      const response = await ReviewService.fetchDashboardReviews()
 
-      if (data.success) {
-        setReviews(data.data.reviews)
-        setSummary(data.data.summary)
+      if (response.success) {
+        setReviews(response.data.reviews)
+        setSummary(response.data.summary)
       }
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
@@ -129,21 +133,24 @@ export default function AnalyticsPage() {
     }, [])
     .slice(-6)
 
-  const categoryRadarData = [
-    { category: "Cleanliness", value: reviews.reduce((sum, r) => sum + r.categories.cleanliness, 0) / reviews.length },
-    {
-      category: "Communication",
-      value: reviews.reduce((sum, r) => sum + r.categories.communication, 0) / reviews.length,
-    },
-    { category: "Check-in", value: reviews.reduce((sum, r) => sum + r.categories.checkIn, 0) / reviews.length },
-    { category: "Accuracy", value: reviews.reduce((sum, r) => sum + r.categories.accuracy, 0) / reviews.length },
-    { category: "Location", value: reviews.reduce((sum, r) => sum + r.categories.location, 0) / reviews.length },
-    { category: "Value", value: reviews.reduce((sum, r) => sum + r.categories.value, 0) / reviews.length },
-  ]
+  // Since we don't have categories in the new structure, we'll create a simple property performance chart
+  const propertyPerformanceData = reviews
+    .reduce((acc: any[], review) => {
+      const existing = acc.find((item) => item.property === review.propertyName)
+      if (existing) {
+        existing.totalRating += review.rating
+        existing.count += 1
+        existing.avgRating = existing.totalRating / existing.count
+      } else {
+        acc.push({ property: review.propertyName, totalRating: review.rating, count: 1, avgRating: review.rating })
+      }
+      return acc
+    }, [])
+    .slice(0, 6) // Top 6 properties
 
   const approvalData = [
-    { name: "Approved", value: reviews.filter((r) => r.approved).length, color: "#284e4c" },
-    { name: "Pending", value: reviews.filter((r) => !r.approved).length, color: "#f1f3ee" },
+    { name: "Approved", value: summary?.approvalBreakdown?.approved || 0, color: "#284e4c" },
+    { name: "Pending", value: summary?.approvalBreakdown?.pending || 0, color: "#f1f3ee" },
   ]
 
   return (
@@ -186,7 +193,7 @@ export default function AnalyticsPage() {
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                 >
                   {sentimentData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -236,18 +243,18 @@ export default function AnalyticsPage() {
 
         <Card className="bg-white border-brand-sage">
           <CardHeader>
-            <CardTitle className="text-brand-dark">Category Performance</CardTitle>
-            <CardDescription className="text-brand-dark/60">Average ratings by category</CardDescription>
+            <CardTitle className="text-brand-dark">Property Performance</CardTitle>
+            <CardDescription className="text-brand-dark/60">Average ratings by property</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <RadarChart data={categoryRadarData}>
-                <PolarGrid stroke="#f1f3ee" />
-                <PolarAngleAxis dataKey="category" />
-                <PolarRadiusAxis domain={[0, 5]} />
-                <Radar name="Rating" dataKey="value" stroke="#284e4c" fill="#284e4c" fillOpacity={0.3} />
+              <BarChart data={propertyPerformanceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f3ee" />
+                <XAxis dataKey="property" angle={-45} textAnchor="end" height={80} />
+                <YAxis domain={[0, 5]} />
                 <Tooltip />
-              </RadarChart>
+                <Bar dataKey="avgRating" fill="#284e4c" />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -267,7 +274,7 @@ export default function AnalyticsPage() {
                   innerRadius={40}
                   outerRadius={80}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                 >
                   {approvalData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />

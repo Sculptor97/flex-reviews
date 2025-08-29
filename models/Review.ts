@@ -44,7 +44,6 @@ const ReviewSchema = new mongoose.Schema<IReview>({
 })
 
 // Create indexes for better query performance
-ReviewSchema.index({ external_id: 1 })
 ReviewSchema.index({ source: 1 })
 ReviewSchema.index({ property_id: 1 })
 ReviewSchema.index({ is_approved: 1 })

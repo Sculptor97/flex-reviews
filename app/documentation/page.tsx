@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Code, Database, Palette, Globe, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Code, Database, Palette, Globe, CheckCircle, XCircle, AlertTriangle, Server, Layers } from "lucide-react"
 import Link from "next/link"
 
 export default function DocumentationPage() {
@@ -31,8 +31,8 @@ export default function DocumentationPage() {
           <h1 className="text-3xl font-bold text-brand-dark mb-4">Flex Living Reviews Dashboard</h1>
           <p className="text-lg text-brand-dark/80 leading-relaxed">
             A comprehensive property management solution for analyzing guest reviews, managing approval workflows, and
-            displaying curated reviews on public-facing pages. Built with modern web technologies and designed for
-            scalability and user experience.
+            displaying curated reviews on public-facing pages. Built with modern web technologies, MongoDB database integration,
+            and designed for scalability and user experience.
           </p>
         </div>
 
@@ -70,19 +70,22 @@ export default function DocumentationPage() {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-brand-dark mb-2">Backend & APIs</h4>
+              <h4 className="font-semibold text-brand-dark mb-2">Backend & Database</h4>
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
                   Next.js API Routes
+                </Badge>
+                <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
+                  MongoDB
+                </Badge>
+                <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
+                  Mongoose ODM
                 </Badge>
                 <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
                   Hostaway API
                 </Badge>
                 <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
                   Google Places API
-                </Badge>
-                <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
-                  SWR
                 </Badge>
               </div>
             </div>
@@ -98,6 +101,169 @@ export default function DocumentationPage() {
                 <Badge variant="secondary" className="bg-brand-sage text-brand-dark">
                   Geist Font
                 </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Database Architecture */}
+        <Card className="mb-8 border-brand-sage">
+          <CardHeader>
+            <CardTitle className="flex items-center text-brand-dark">
+              <Database className="mr-2 h-5 w-5" />
+              Database Architecture
+            </CardTitle>
+            <CardDescription>MongoDB integration and data persistence strategy</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">MongoDB Integration</h4>
+              <div className="bg-brand-cream p-4 rounded-lg">
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>Database:</strong> MongoDB with Mongoose ODM for data modeling
+                </p>
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>Connection:</strong> Centralized connection management in <code className="bg-white px-2 py-1 rounded text-brand-teal">lib/mongodb.ts</code>
+                </p>
+                <p className="text-sm text-brand-dark/80">
+                  <strong>Schema:</strong> Comprehensive Review model with indexing and validation
+                </p>
+              </div>
+            </div>
+
+            <Separator className="bg-brand-sage" />
+
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">Data Model</h4>
+              <div className="bg-brand-cream p-4 rounded-lg">
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>Review Schema:</strong> Normalized structure with all review data
+                </p>
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>Indexing:</strong> Optimized queries with compound indexes
+                </p>
+                <p className="text-sm text-brand-dark/80">
+                  <strong>Validation:</strong> Type-safe data with Mongoose validation
+                </p>
+              </div>
+              <ul className="mt-3 space-y-1 text-brand-dark/80">
+                <li>• Unique external_id for deduplication</li>
+                <li>• Source tracking (hostaway, google, manual)</li>
+                <li>• Approval workflow with audit trail</li>
+                <li>• Sentiment analysis and categorization</li>
+              </ul>
+            </div>
+
+            <Separator className="bg-brand-sage" />
+
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">Data Ingestion Strategy</h4>
+              <ul className="space-y-2 text-brand-dark/80">
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>Automatic data seeding when database is empty</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>Manual sync triggers via API endpoints</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>Deduplication based on external_id</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>Real-time data transformation and normalization</span>
+                </li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* API Architecture */}
+        <Card className="mb-8 border-brand-sage">
+          <CardHeader>
+            <CardTitle className="flex items-center text-brand-dark">
+              <Server className="mr-2 h-5 w-5" />
+              API Architecture
+            </CardTitle>
+            <CardDescription>Single source of truth with modular helper functions</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">Single Source of Truth</h4>
+              <div className="bg-brand-cream p-4 rounded-lg">
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>Main Endpoint:</strong>{" "}
+                  <code className="bg-white px-2 py-1 rounded text-brand-teal">/api/reviews/hostaway</code>
+                </p>
+                <p className="text-sm text-brand-dark/80 mb-2">
+                  <strong>CRUD Operations:</strong> GET, POST, PATCH, DELETE all in one endpoint
+                </p>
+                <p className="text-sm text-brand-dark/80">
+                  <strong>Features:</strong> Filtering, pagination, sorting, and optional summary statistics
+                </p>
+              </div>
+            </div>
+
+            <Separator className="bg-brand-sage" />
+
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">Helper Functions Architecture</h4>
+              <div className="space-y-3">
+                <div className="p-4 bg-brand-cream rounded-lg">
+                  <h5 className="font-medium text-brand-dark mb-2">lib/hostaway/data.ts</h5>
+                  <p className="text-sm text-brand-dark/80 mb-2">Mock data and normalization functions</p>
+                  <ul className="text-sm text-brand-dark/80 space-y-1">
+                    <li>• Mock Hostaway reviews data</li>
+                    <li>• Data normalization logic</li>
+                    <li>• Type definitions</li>
+                  </ul>
+                </div>
+                <div className="p-4 bg-brand-cream rounded-lg">
+                  <h5 className="font-medium text-brand-dark mb-2">lib/hostaway/database.ts</h5>
+                  <p className="text-sm text-brand-dark/80 mb-2">Database operations and utilities</p>
+                  <ul className="text-sm text-brand-dark/80 space-y-1">
+                    <li>• MongoDB connection and queries</li>
+                    <li>• Data transformation functions</li>
+                    <li>• Summary generation logic</li>
+                  </ul>
+                </div>
+                <div className="p-4 bg-brand-cream rounded-lg">
+                  <h5 className="font-medium text-brand-dark mb-2">lib/hostaway/utils.ts</h5>
+                  <p className="text-sm text-brand-dark/80 mb-2">Utility functions and helpers</p>
+                  <ul className="text-sm text-brand-dark/80 space-y-1">
+                    <li>• Avatar generation</li>
+                    <li>• Sentiment analysis</li>
+                    <li>• Data validation</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <Separator className="bg-brand-sage" />
+
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-3">API Endpoints</h4>
+              <div className="space-y-3">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm font-medium text-green-800 mb-1">Primary CRUD Endpoint</p>
+                  <p className="text-sm text-green-700">
+                    <code>/api/reviews/hostaway</code> - All review operations with query parameters
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm font-medium text-blue-800 mb-1">Google Integration</p>
+                  <p className="text-sm text-blue-700">
+                    <code>/api/reviews/google</code> - Google Places API integration
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <p className="text-sm font-medium text-purple-800 mb-1">Combined Views</p>
+                  <p className="text-sm text-purple-700">
+                    <code>/api/reviews/combined</code> - Multi-source review aggregation
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -119,20 +285,57 @@ export default function DocumentationPage() {
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
                   <span>
-                    <strong>Separation of Concerns:</strong> Extracted business logic into utility functions, custom
-                    hooks, and service layers
+                    <strong>Single Source of Truth:</strong> All CRUD operations centralized in hostaway endpoint
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
                   <span>
-                    <strong>Modular Components:</strong> Reusable UI components with consistent design system
+                    <strong>Modular Helper Functions:</strong> Clean separation of concerns with extracted utilities
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
                   <span>
                     <strong>Type Safety:</strong> Comprehensive TypeScript interfaces for all data structures
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Database-First Approach:</strong> MongoDB integration for persistent data storage
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <Separator className="bg-brand-sage" />
+
+            <div>
+              <h4 className="font-semibold text-brand-dark mb-2">Data Management Strategy</h4>
+              <ul className="space-y-2 text-brand-dark/80">
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Hybrid Summary Approach:</strong> Server-generated summaries with client-side analytics
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Service Layer:</strong> Centralized API calls through ReviewService
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Automatic Data Ingestion:</strong> Smart seeding when database is empty
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Consistent Data Format:</strong> Unified review structure across all sources
                   </span>
                 </li>
               </ul>
@@ -161,31 +364,10 @@ export default function DocumentationPage() {
                     <strong>Minimal Color Palette:</strong> Clean white-based design with strategic accent colors
                   </span>
                 </li>
-              </ul>
-            </div>
-
-            <Separator className="bg-brand-sage" />
-
-            <div>
-              <h4 className="font-semibold text-brand-dark mb-2">Data Management</h4>
-              <ul className="space-y-2 text-brand-dark/80">
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
                   <span>
-                    <strong>Data Normalization:</strong> Unified review format across multiple sources (Hostaway,
-                    Google)
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>
-                    <strong>Client-Side Caching:</strong> SWR for efficient data fetching and state management
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>
-                    <strong>Mock Data Strategy:</strong> Realistic sample data for development and testing
+                    <strong>Real-time Updates:</strong> Immediate feedback for approval actions
                   </span>
                 </li>
               </ul>
@@ -197,49 +379,48 @@ export default function DocumentationPage() {
         <Card className="mb-8 border-brand-sage">
           <CardHeader>
             <CardTitle className="flex items-center text-brand-dark">
-              <Database className="mr-2 h-5 w-5" />
-              API Behaviors
+              <Layers className="mr-2 h-5 w-5" />
+              API Behaviors & Features
             </CardTitle>
             <CardDescription>How the application handles data fetching and API integration</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h4 className="font-semibold text-brand-dark mb-3">Hostaway Integration</h4>
+              <h4 className="font-semibold text-brand-dark mb-3">Main API Endpoint</h4>
               <div className="bg-brand-cream p-4 rounded-lg">
                 <p className="text-sm text-brand-dark/80 mb-2">
                   <strong>Endpoint:</strong>{" "}
                   <code className="bg-white px-2 py-1 rounded text-brand-teal">/api/reviews/hostaway</code>
                 </p>
                 <p className="text-sm text-brand-dark/80 mb-2">
-                  <strong>Method:</strong> GET with query parameters for filtering
+                  <strong>Methods:</strong> GET, POST, PATCH, DELETE with comprehensive query parameters
                 </p>
                 <p className="text-sm text-brand-dark/80">
-                  <strong>Features:</strong> Pagination, filtering by rating/channel/date, sorting, and data
-                  normalization
+                  <strong>Features:</strong> Pagination, filtering, sorting, summary statistics, and data ingestion
                 </p>
               </div>
               <ul className="mt-3 space-y-1 text-brand-dark/80">
-                <li>• Normalizes review data into consistent format</li>
-                <li>• Handles missing or malformed data gracefully</li>
-                <li>• Provides summary statistics and metadata</li>
-                <li>• Supports advanced filtering and sorting options</li>
+                <li>• Automatic data seeding when database is empty</li>
+                <li>• Optional summary statistics with <code>?summary=true</code></li>
+                <li>• Flexible filtering by rating, channel, approval status, etc.</li>
+                <li>• Real-time approval workflow with audit trail</li>
+                <li>• Deduplication based on external_id</li>
               </ul>
             </div>
 
             <Separator className="bg-brand-sage" />
 
             <div>
-              <h4 className="font-semibold text-brand-dark mb-3">Combined Reviews API</h4>
+              <h4 className="font-semibold text-brand-dark mb-3">Service Layer Integration</h4>
               <div className="bg-brand-cream p-4 rounded-lg">
                 <p className="text-sm text-brand-dark/80 mb-2">
-                  <strong>Endpoint:</strong>{" "}
-                  <code className="bg-white px-2 py-1 rounded text-brand-teal">/api/reviews/combined</code>
+                  <strong>ReviewService:</strong> Centralized API interaction layer
                 </p>
                 <p className="text-sm text-brand-dark/80 mb-2">
-                  <strong>Method:</strong> GET - Merges Hostaway and Google reviews
+                  <strong>Methods:</strong> fetchReviews, fetchDashboardReviews, fetchPublicReviews, approveReviews
                 </p>
                 <p className="text-sm text-brand-dark/80">
-                  <strong>Features:</strong> Unified data format, source attribution, and combined analytics
+                  <strong>Features:</strong> Type-safe responses, error handling, and automatic data syncing
                 </p>
               </div>
             </div>
@@ -259,25 +440,29 @@ export default function DocumentationPage() {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>Client-side caching to reduce API calls</span>
+                  <span>Database connection pooling and optimization</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
                   <span>Optimistic updates for better perceived performance</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
+                  <span>Automatic retry logic for failed operations</span>
                 </li>
               </ul>
             </div>
           </CardContent>
         </Card>
 
-        {/* Google Reviews Findings */}
+        {/* Google Reviews Integration */}
         <Card className="mb-8 border-brand-sage">
           <CardHeader>
             <CardTitle className="flex items-center text-brand-dark">
               <Globe className="mr-2 h-5 w-5" />
-              Google Reviews Integration Findings
+              Google Reviews Integration
             </CardTitle>
-            <CardDescription>Research and implementation results for Google Places API integration</CardDescription>
+            <CardDescription>Google Places API integration and multi-source review aggregation</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
@@ -293,7 +478,7 @@ export default function DocumentationPage() {
                 </div>
                 <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
                   <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">Demo Implementation</span>
+                  <span className="text-sm font-medium text-green-800">Combined Views</span>
                 </div>
               </div>
             </div>
@@ -336,51 +521,33 @@ export default function DocumentationPage() {
             <Separator className="bg-brand-sage" />
 
             <div>
-              <h4 className="font-semibold text-brand-dark mb-3">Alternative Solutions</h4>
+              <h4 className="font-semibold text-brand-dark mb-3">Multi-Source Strategy</h4>
               <div className="space-y-3">
                 <div className="p-4 bg-brand-cream rounded-lg">
-                  <h5 className="font-medium text-brand-dark mb-2">Google My Business API</h5>
+                  <h5 className="font-medium text-brand-dark mb-2">Primary Source: Hostaway</h5>
                   <p className="text-sm text-brand-dark/80 mb-2">
-                    Provides access to all reviews (up to 50 per page) but requires:
+                    Main review management system with full CRUD capabilities:
                   </p>
                   <ul className="text-sm text-brand-dark/80 space-y-1">
-                    <li>• Business ownership verification</li>
-                    <li>• 2-4 weeks approval process</li>
-                    <li>• More complex authentication flow</li>
+                    <li>• Complete review lifecycle management</li>
+                    <li>• Approval workflow and audit trail</li>
+                    <li>• Comprehensive analytics and reporting</li>
+                    <li>• Database persistence and data integrity</li>
                   </ul>
                 </div>
                 <div className="p-4 bg-brand-cream rounded-lg">
-                  <h5 className="font-medium text-brand-dark mb-2">Third-Party Services</h5>
-                  <p className="text-sm text-brand-dark/80">
-                    Services like Featurable API offer embeddable widgets with more reviews but require business
-                    ownership and additional costs.
+                  <h5 className="font-medium text-brand-dark mb-2">Supplementary: Google Places</h5>
+                  <p className="text-sm text-brand-dark/80 mb-2">
+                    Social proof and additional review sources:
                   </p>
+                  <ul className="text-sm text-brand-dark/80 space-y-1">
+                    <li>• Public review aggregation</li>
+                    <li>• Enhanced social credibility</li>
+                    <li>• Cross-platform review visibility</li>
+                    <li>• SEO and discoverability benefits</li>
+                  </ul>
                 </div>
               </div>
-            </div>
-
-            <Separator className="bg-brand-sage" />
-
-            <div>
-              <h4 className="font-semibold text-brand-dark mb-3">Recommendations</h4>
-              <ul className="space-y-2 text-brand-dark/80">
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>Use Google Places API for basic integration and social proof</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>Consider Google My Business API for comprehensive review management</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>Implement proper attribution and comply with Google's display requirements</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="mr-2 h-4 w-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                  <span>Focus on Hostaway as primary source with Google as supplementary</span>
-                </li>
-              </ul>
             </div>
           </CardContent>
         </Card>
@@ -388,7 +555,7 @@ export default function DocumentationPage() {
         {/* Footer */}
         <div className="text-center py-8 border-t border-brand-sage">
           <p className="text-brand-dark/60 mb-4">
-            This documentation covers the key aspects of the Flex Living Reviews Dashboard implementation.
+            This documentation covers the key aspects of the Flex Living Reviews Dashboard implementation with MongoDB integration.
           </p>
           <Link href="/dashboard">
             <Button className="bg-brand-teal hover:bg-brand-teal/90 text-white">Open Dashboard</Button>

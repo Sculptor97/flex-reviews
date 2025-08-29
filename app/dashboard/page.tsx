@@ -4,35 +4,34 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Star, TrendingUp, MessageSquare, CheckCircle } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import { ReviewService } from "@/services/reviewService"
 
 interface Review {
   id: string
   propertyId: string
   propertyName: string
   guestName: string
+  guestAvatar?: string
   rating: number
   comment: string
   date: string
   channel: string
-  categories: {
-    cleanliness: number
-    communication: number
-    checkIn: number
-    accuracy: number
-    location: number
-    value: number
-  }
-  hostResponse?: string
-  verified: boolean
-  approved: boolean
-  sentiment: "positive" | "neutral" | "negative"
+  source: string
+  category: string
+  isApproved: boolean
+  approvedBy?: string
+  approvedAt?: string
+  response?: string
+  responseDate?: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface ApiResponse {
   success: boolean
   data: {
     reviews: Review[]
-    summary: {
+    summary?: {
       totalReviews: number
       averageRating: number
       channelBreakdown: Record<string, number>
@@ -40,6 +39,11 @@ interface ApiResponse {
         positive: number
         neutral: number
         negative: number
+      }
+      ratingBreakdown: Record<number, number>
+      approvalBreakdown: {
+        approved: number
+        pending: number
       }
     }
   }
@@ -53,12 +57,11 @@ export default function DashboardOverview() {
   const fetchReviews = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/reviews/hostaway")
-      const data: ApiResponse = await response.json()
+      const response = await ReviewService.fetchDashboardReviews()
 
-      if (data.success) {
-        setReviews(data.data.reviews)
-        setSummary(data.data.summary)
+      if (response.success) {
+        setReviews(response.data.reviews)
+        setSummary(response.data.summary)
       }
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
@@ -73,17 +76,17 @@ export default function DashboardOverview() {
 
   // Chart data
   const ratingDistribution = [
-    { rating: "5 Stars", count: reviews.filter((r) => r.rating === 5).length },
-    { rating: "4 Stars", count: reviews.filter((r) => r.rating === 4).length },
-    { rating: "3 Stars", count: reviews.filter((r) => r.rating === 3).length },
-    { rating: "2 Stars", count: reviews.filter((r) => r.rating === 2).length },
-    { rating: "1 Star", count: reviews.filter((r) => r.rating === 1).length },
+    { rating: "5 Stars", count: summary?.ratingBreakdown?.[5] || 0 },
+    { rating: "4 Stars", count: summary?.ratingBreakdown?.[4] || 0 },
+    { rating: "3 Stars", count: summary?.ratingBreakdown?.[3] || 0 },
+    { rating: "2 Stars", count: summary?.ratingBreakdown?.[2] || 0 },
+    { rating: "1 Star", count: summary?.ratingBreakdown?.[1] || 0 },
   ]
 
   const sentimentData = [
-    { name: "Positive", value: summary?.sentimentBreakdown.positive || 0, color: "#284e4c" },
-    { name: "Neutral", value: summary?.sentimentBreakdown.neutral || 0, color: "#f1f3ee" },
-    { name: "Negative", value: summary?.sentimentBreakdown.negative || 0, color: "#111827" },
+    { name: "Positive", value: summary?.sentimentBreakdown?.positive || 0, color: "#284e4c" },
+    { name: "Neutral", value: summary?.sentimentBreakdown?.neutral || 0, color: "#f1f3ee" },
+    { name: "Negative", value: summary?.sentimentBreakdown?.negative || 0, color: "#111827" },
   ]
 
   return (
@@ -119,8 +122,8 @@ export default function DashboardOverview() {
               <CheckCircle className="h-4 w-4 text-brand-teal" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-brand-dark">{reviews.filter((r) => r.approved).length}</div>
-              <p className="text-xs text-brand-dark/60">{reviews.filter((r) => !r.approved).length} pending</p>
+              <div className="text-2xl font-bold text-brand-dark">{summary.approvalBreakdown.approved}</div>
+              <p className="text-xs text-brand-dark/60">{summary.approvalBreakdown.pending} pending</p>
             </CardContent>
           </Card>
 

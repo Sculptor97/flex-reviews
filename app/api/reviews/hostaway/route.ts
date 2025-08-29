@@ -1,335 +1,187 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import connectDB from "@/lib/mongodb"
+import Review from "@/models/Review"
+import { mockHostawayReviews, normalizeHostawayReviews } from "@/lib/hostaway/data"
+import {
+  syncReviewsToDatabase,
+  ensureDataExists,
+  buildQueryFromParams,
+  buildSortFromParams,
+  getPaginationParams,
+  transformReviewsForAPI,
+  generateSummaryFromReviews,
+} from "@/lib/hostaway/database"
 
-// Mock data structure based on Hostaway API format
-const mockHostawayReviews = [
-  {
-    id: "rev_001",
-    listing_id: "prop_123",
-    guest_name: "Sarah Johnson",
-    rating: 5,
-    comment:
-      "Absolutely loved our stay! The apartment was spotless, beautifully decorated, and in the perfect location. The host was incredibly responsive and helpful. Would definitely book again!",
-    created_at: "2024-01-15T10:30:00Z",
-    channel: "Airbnb",
-    categories: {
-      cleanliness: 5,
-      communication: 5,
-      check_in: 5,
-      accuracy: 5,
-      location: 5,
-      value: 5,
-    },
-    property_name: "Modern Downtown Loft",
-    response: null,
-    verified: true,
-  },
-  {
-    id: "rev_002",
-    listing_id: "prop_124",
-    guest_name: "Michael Chen",
-    rating: 4,
-    comment:
-      "Great location and clean space. The WiFi was a bit slow for work calls, but overall a pleasant stay. The kitchen was well-equipped and the bed was comfortable.",
-    created_at: "2024-01-12T14:22:00Z",
-    channel: "Booking.com",
-    categories: {
-      cleanliness: 5,
-      communication: 4,
-      check_in: 4,
-      accuracy: 4,
-      location: 5,
-      value: 4,
-    },
-    property_name: "Cozy Studio Near Park",
-    response:
-      "Thank you for your feedback! We've upgraded our internet package to provide better connectivity for our guests.",
-    verified: true,
-  },
-  {
-    id: "rev_003",
-    listing_id: "prop_125",
-    guest_name: "Emma Rodriguez",
-    rating: 3,
-    comment:
-      "The apartment was okay but had some maintenance issues. The shower pressure was very low and there was a strange smell in the bathroom. Location was good though.",
-    created_at: "2024-01-10T09:15:00Z",
-    channel: "VRBO",
-    categories: {
-      cleanliness: 3,
-      communication: 4,
-      check_in: 4,
-      accuracy: 3,
-      location: 4,
-      value: 3,
-    },
-    property_name: "City Center Apartment",
-    response: null,
-    verified: true,
-  },
-  {
-    id: "rev_004",
-    listing_id: "prop_123",
-    guest_name: "David Kim",
-    rating: 5,
-    comment:
-      "Exceptional experience from start to finish. The property exceeded our expectations in every way. Perfect for a romantic getaway!",
-    created_at: "2024-01-08T16:45:00Z",
-    channel: "Airbnb",
-    categories: {
-      cleanliness: 5,
-      communication: 5,
-      check_in: 5,
-      accuracy: 5,
-      location: 5,
-      value: 5,
-    },
-    property_name: "Modern Downtown Loft",
-    response: "So happy you enjoyed your stay! Thank you for being wonderful guests.",
-    verified: true,
-  },
-  {
-    id: "rev_005",
-    listing_id: "prop_126",
-    guest_name: "Lisa Thompson",
-    rating: 2,
-    comment:
-      "Unfortunately, the apartment was not as advertised. It was quite dirty upon arrival and several amenities mentioned in the listing were not available. Very disappointing.",
-    created_at: "2024-01-05T11:20:00Z",
-    channel: "Airbnb",
-    categories: {
-      cleanliness: 2,
-      communication: 3,
-      check_in: 3,
-      accuracy: 2,
-      location: 4,
-      value: 2,
-    },
-    property_name: "Beachside Retreat",
-    response: null,
-    verified: true,
-  },
-]
-
-// Normalized review interface
-interface NormalizedReview {
-  id: string
-  propertyId: string
-  propertyName: string
-  guestName: string
-  rating: number
-  comment: string
-  date: string
-  channel: string
-  categories: {
-    cleanliness: number
-    communication: number
-    checkIn: number
-    accuracy: number
-    location: number
-    value: number
-  }
-  hostResponse?: string
-  verified: boolean
-  approved: boolean
-  sentiment: "positive" | "neutral" | "negative"
-}
-
-// Data normalization function
-function normalizeHostawayReviews(rawReviews: any[]): NormalizedReview[] {
-  return rawReviews.map((review) => {
-    // Determine sentiment based on rating
-    let sentiment: "positive" | "neutral" | "negative" = "neutral"
-    if (review.rating >= 4) sentiment = "positive"
-    else if (review.rating <= 2) sentiment = "negative"
-
-    return {
-      id: review.id,
-      propertyId: review.listing_id,
-      propertyName: review.property_name,
-      guestName: review.guest_name,
-      rating: review.rating,
-      comment: review.comment,
-      date: review.created_at,
-      channel: review.channel,
-      categories: {
-        cleanliness: review.categories.cleanliness,
-        communication: review.categories.communication,
-        checkIn: review.categories.check_in,
-        accuracy: review.categories.accuracy,
-        location: review.categories.location,
-        value: review.categories.value,
-      },
-      hostResponse: review.response,
-      verified: review.verified,
-      approved: review.rating >= 4, // Auto-approve 4+ star reviews
-      sentiment,
-    }
-  })
-}
-
-// Function to sync reviews to database
-async function syncReviewsToDatabase(reviews: NormalizedReview[]) {
-  const supabase = await createClient()
-
-  for (const review of reviews) {
-    // Check if review already exists
-    const { data: existingReview } = await supabase
-      .from("reviews")
-      .select("id")
-      .eq("external_id", review.id)
-      .eq("source", "hostaway")
-      .single()
-
-    if (!existingReview) {
-      // Insert new review
-      const { error } = await supabase.from("reviews").insert({
-        external_id: review.id,
-        source: "hostaway",
-        property_name: review.propertyName,
-        guest_name: review.guestName,
-        guest_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(review.guestName)}&background=284E4C&color=fff`,
-        rating: review.rating,
-        title: `${review.rating} star review`,
-        content: review.comment,
-        category: review.sentiment,
-        channel: review.channel,
-        date_created: review.date,
-        approval_status: review.approved ? "approved" : "pending",
-        host_response: review.hostResponse,
-        host_response_date: review.hostResponse ? review.date : null,
-        metadata: {
-          categories: review.categories,
-          verified: review.verified,
-          property_id: review.propertyId,
-        },
-      })
-
-      if (error) {
-        console.error("Error inserting review:", error)
-      }
-    }
-  }
-}
-
+// GET - Fetch reviews with filtering (main CRUD operation)
 export async function GET(request: Request) {
   try {
+    await connectDB()
+    
     const { searchParams } = new URL(request.url)
-    const propertyId = searchParams.get("property_id")
-    const channel = searchParams.get("channel")
-    const minRating = searchParams.get("min_rating")
-    const limit = searchParams.get("limit") || "50"
+    const sync = searchParams.get("sync") === "true" // Force sync
+    const includeSummary = searchParams.get("summary") === "true" // Include summary
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    let filteredReviews = [...mockHostawayReviews]
-
-    // Apply filters
-    if (propertyId) {
-      filteredReviews = filteredReviews.filter((review) => review.listing_id === propertyId)
+    // If sync is requested, sync the mock data
+    if (sync) {
+      const normalizedReviews = normalizeHostawayReviews(mockHostawayReviews)
+      await syncReviewsToDatabase(normalizedReviews)
+    } else {
+      // Ensure data exists before proceeding
+      const normalizedReviews = normalizeHostawayReviews(mockHostawayReviews)
+      await ensureDataExists(normalizedReviews)
     }
 
-    if (channel) {
-      filteredReviews = filteredReviews.filter((review) => review.channel.toLowerCase() === channel.toLowerCase())
-    }
+    // Build query, sort, and pagination from parameters
+    const query = buildQueryFromParams(searchParams)
+    const sortObject = buildSortFromParams(searchParams)
+    const { limit, page, skip } = getPaginationParams(searchParams)
 
-    if (minRating) {
-      filteredReviews = filteredReviews.filter((review) => review.rating >= Number.parseInt(minRating))
-    }
+    // Execute query with pagination
+    const reviews = await Review.find(query)
+      .sort(sortObject)
+      .skip(skip)
+      .limit(limit)
+      .lean()
 
-    // Limit results
-    filteredReviews = filteredReviews.slice(0, Number.parseInt(limit))
+    // Get total count for pagination
+    const totalCount = await Review.countDocuments(query)
 
-    // Normalize the data
-    const normalizedReviews = normalizeHostawayReviews(filteredReviews)
+    // Transform data to consistent format
+    const transformedReviews = transformReviewsForAPI(reviews)
 
-    await syncReviewsToDatabase(normalizedReviews)
-
-    // Calculate summary statistics
-    const totalReviews = normalizedReviews.length
-    const averageRating =
-      totalReviews > 0 ? normalizedReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews : 0
-
-    const channelBreakdown = normalizedReviews.reduce(
-      (acc, review) => {
-        acc[review.channel] = (acc[review.channel] || 0) + 1
-        return acc
+    // Prepare response data
+    const responseData: any = {
+      reviews: transformedReviews,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit),
       },
-      {} as Record<string, number>,
+    }
+
+    // Include summary if requested
+    if (includeSummary) {
+      // Get all reviews for summary calculation (not just paginated ones)
+      const allReviews = await Review.find(query).lean()
+      const allTransformedReviews = transformReviewsForAPI(allReviews)
+      responseData.summary = generateSummaryFromReviews(allTransformedReviews)
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: responseData,
+    })
+  } catch (error) {
+    console.error("API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// PATCH - Update review approval status
+export async function PATCH(request: Request) {
+  try {
+    await connectDB()
+    const { reviewIds, approved, approvedBy } = await request.json()
+
+    if (!reviewIds || !Array.isArray(reviewIds)) {
+      return NextResponse.json({ success: false, error: "Review IDs are required" }, { status: 400 })
+    }
+
+    // Update approval status in database
+    const updateData = {
+      is_approved: approved,
+      approved_by: approvedBy || "Manager",
+      approved_at: approved ? new Date() : null,
+      updated_at: new Date(),
+    }
+
+    const result = await Review.updateMany(
+      { external_id: { $in: reviewIds } },
+      updateData
     )
 
-    const sentimentBreakdown = normalizedReviews.reduce(
-      (acc, review) => {
-        acc[review.sentiment] = (acc[review.sentiment] || 0) + 1
-        return acc
-      },
-      { positive: 0, neutral: 0, negative: 0 },
-    )
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ success: false, error: "No reviews found" }, { status: 404 })
+    }
+
+    // Fetch updated reviews
+    const updatedReviews = await Review.find({ external_id: { $in: reviewIds } }).lean()
 
     return NextResponse.json({
       success: true,
       data: {
-        reviews: normalizedReviews,
-        summary: {
-          totalReviews,
-          averageRating: Math.round(averageRating * 10) / 10,
-          channelBreakdown,
-          sentimentBreakdown,
-        },
-      },
-      meta: {
-        timestamp: new Date().toISOString(),
-        source: "hostaway_api",
-        filters: {
-          propertyId,
-          channel,
-          minRating,
-          limit: Number.parseInt(limit),
-        },
+        updatedReviews,
+        message: `${result.modifiedCount} review(s) ${approved ? "approved" : "unapproved"} successfully`,
       },
     })
   } catch (error) {
-    console.error("Error fetching Hostaway reviews:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch reviews",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
+    console.error("API error:", error)
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
   }
 }
 
-// API route for updating review approval status
-export async function PATCH(request: Request) {
+// POST - Create new review (for manual entry or API ingestion)
+export async function POST(request: Request) {
   try {
-    const { reviewIds, action, approvedBy } = await request.json()
-    const supabase = await createClient()
+    await connectDB()
+    const reviewData = await request.json()
 
-    const approvalStatus = action === "approve" ? "approved" : "rejected"
+    const newReview = new Review({
+      external_id: reviewData.external_id,
+      source: reviewData.source || "manual",
+      property_id: reviewData.property_id,
+      property_name: reviewData.property_name,
+      guest_name: reviewData.guest_name,
+      guest_avatar: reviewData.guest_avatar,
+      rating: reviewData.rating,
+      comment: reviewData.comment,
+      category: reviewData.category,
+      channel: reviewData.channel,
+      date: new Date(reviewData.date),
+      is_approved: reviewData.is_approved || false,
+      response: reviewData.response,
+      response_date: reviewData.response_date ? new Date(reviewData.response_date) : null,
+    })
 
-    const { error } = await supabase
-      .from("reviews")
-      .update({
-        approval_status: approvalStatus,
-        approved_by: approvedBy,
-        approved_at: new Date().toISOString(),
-      })
-      .in("external_id", reviewIds)
+    await newReview.save()
 
-    if (error) {
-      console.error("Error updating review approval:", error)
-      return NextResponse.json({ error: "Failed to update reviews" }, { status: 500 })
+    return NextResponse.json({
+      success: true,
+      data: {
+        review: newReview,
+        message: "Review created successfully",
+      },
+    })
+  } catch (error) {
+    console.error("API error:", error)
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// DELETE - Delete review
+export async function DELETE(request: Request) {
+  try {
+    await connectDB()
+    const { searchParams } = new URL(request.url)
+    const reviewId = searchParams.get("id")
+
+    if (!reviewId) {
+      return NextResponse.json({ success: false, error: "Review ID is required" }, { status: 400 })
+    }
+
+    const result = await Review.deleteOne({ external_id: reviewId })
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ success: false, error: "Review not found" }, { status: 404 })
     }
 
     return NextResponse.json({
       success: true,
-      message: `Successfully ${action}d ${reviewIds.length} review(s)`,
+      message: "Review deleted successfully",
     })
   } catch (error) {
-    console.error("Error in PATCH request:", error)
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    console.error("API error:", error)
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
   }
 }

@@ -18,35 +18,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Star, CheckCircle, XCircle, Clock, Search, MessageSquare } from "lucide-react"
+import { ReviewService } from "@/services/reviewService"
 
 interface Review {
   id: string
   propertyId: string
   propertyName: string
   guestName: string
+  guestAvatar?: string
   rating: number
   comment: string
   date: string
   channel: string
-  categories: {
-    cleanliness: number
-    communication: number
-    checkIn: number
-    accuracy: number
-    location: number
-    value: number
-  }
-  hostResponse?: string
-  verified: boolean
-  approved: boolean
-  sentiment: "positive" | "neutral" | "negative"
+  source: string
+  category: string
+  isApproved: boolean
+  approvedBy?: string
+  approvedAt?: string
+  response?: string
+  responseDate?: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface ApiResponse {
   success: boolean
   data: {
     reviews: Review[]
-    summary: {
+    summary?: {
       totalReviews: number
       averageRating: number
       channelBreakdown: Record<string, number>
@@ -54,6 +53,11 @@ interface ApiResponse {
         positive: number
         neutral: number
         negative: number
+      }
+      ratingBreakdown: Record<number, number>
+      approvalBreakdown: {
+        approved: number
+        pending: number
       }
     }
   }
@@ -78,12 +82,11 @@ export default function ReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/reviews/hostaway")
-      const data: ApiResponse = await response.json()
+      const response = await ReviewService.fetchDashboardReviews()
 
-      if (data.success) {
-        setReviews(data.data.reviews)
-        setFilteredReviews(data.data.reviews)
+      if (response.success) {
+        setReviews(response.data.reviews)
+        setFilteredReviews(response.data.reviews)
       }
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
@@ -118,11 +121,11 @@ export default function ReviewsPage() {
     }
 
     if (filters.sentiment) {
-      filtered = filtered.filter((review) => review.sentiment === filters.sentiment)
+      filtered = filtered.filter((review) => review.category === filters.sentiment)
     }
 
     if (filters.approved !== "") {
-      filtered = filtered.filter((review) => review.approved === (filters.approved === "true"))
+      filtered = filtered.filter((review) => review.isApproved === (filters.approved === "true"))
     }
 
     setFilteredReviews(filtered)
@@ -130,66 +133,39 @@ export default function ReviewsPage() {
 
   const handleApproval = async (reviewId: string, approved: boolean) => {
     try {
-      setReviews((prev) => prev.map((review) => (review.id === reviewId ? { ...review, approved } : review)))
-
-      const response = await fetch("/api/reviews/approve", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reviewIds: [reviewId],
-          approved,
-          approvedBy: "Manager", // In a real app, this would be the current user
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!result.success) {
-        console.error("Failed to update approval status:", result.error)
-        setReviews((prev) =>
-          prev.map((review) => (review.id === reviewId ? { ...review, approved: !approved } : review)),
-        )
+      const response = await ReviewService.approveReviews([reviewId], approved, "Admin")
+      
+      if (response.success) {
+        // Refresh the reviews list
+        fetchReviews()
+      } else {
+        console.error("Failed to approve review:", response.error)
       }
     } catch (error) {
-      console.error("Error updating approval status:", error)
-      setReviews((prev) => prev.map((review) => (review.id === reviewId ? { ...review, approved: !approved } : review)))
+      console.error("Error approving review:", error)
     }
   }
 
   const handleBulkApproval = async (approved: boolean) => {
     try {
       setReviews((prev) =>
-        prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, approved } : review)),
+        prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, isApproved: approved } : review)),
       )
 
-      const response = await fetch("/api/reviews/approve", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reviewIds: selectedReviews,
-          approved,
-          approvedBy: "Manager",
-        }),
-      })
+      const response = await ReviewService.approveReviews(selectedReviews, approved, "Manager")
 
-      const result = await response.json()
-
-      if (result.success) {
+      if (response.success) {
         setSelectedReviews([])
       } else {
-        console.error("Failed to bulk update approval status:", result.error)
+        console.error("Failed to bulk update approval status:", response.error)
         setReviews((prev) =>
-          prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, approved: !approved } : review)),
+          prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, isApproved: !approved } : review)),
         )
       }
     } catch (error) {
       console.error("Error bulk updating approval status:", error)
       setReviews((prev) =>
-        prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, approved: !approved } : review)),
+        prev.map((review) => (selectedReviews.includes(review.id) ? { ...review, isApproved: !approved } : review)),
       )
     }
   }
@@ -385,9 +361,9 @@ export default function ReviewsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className={getSentimentColor(review.sentiment)}>{review.sentiment}</Badge>
+                  <Badge className={getSentimentColor(review.category)}>{review.category}</Badge>
                   <Badge className={getChannelColor(review.channel)}>{review.channel}</Badge>
-                  {review.approved ? (
+                  {review.isApproved ? (
                     <Badge className="bg-brand-teal/10 text-brand-teal">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Approved
@@ -413,43 +389,16 @@ export default function ReviewsPage() {
             <CardContent>
               <p className="text-brand-dark mb-4">{review.comment}</p>
 
-              {review.hostResponse && (
+              {review.response && (
                 <div className="bg-brand-cream p-3 rounded-lg mb-4">
                   <p className="text-sm font-medium text-brand-dark mb-1">Host Response:</p>
-                  <p className="text-sm text-brand-dark">{review.hostResponse}</p>
+                  <p className="text-sm text-brand-dark">{review.response}</p>
                 </div>
               )}
 
               <div className="flex items-center justify-between">
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Cleanliness</div>
-                    <div className="text-brand-dark/60">{review.categories.cleanliness}/5</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Communication</div>
-                    <div className="text-brand-dark/60">{review.categories.communication}/5</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Check-in</div>
-                    <div className="text-brand-dark/60">{review.categories.checkIn}/5</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Accuracy</div>
-                    <div className="text-brand-dark/60">{review.categories.accuracy}/5</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Location</div>
-                    <div className="text-brand-dark/60">{review.categories.location}/5</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-brand-dark">Value</div>
-                    <div className="text-brand-dark/60">{review.categories.value}/5</div>
-                  </div>
-                </div>
-
                 <div className="flex items-center space-x-2">
-                  {!review.approved ? (
+                  {!review.isApproved ? (
                     <Button
                       size="sm"
                       className="bg-brand-teal hover:bg-brand-teal/90 text-white"

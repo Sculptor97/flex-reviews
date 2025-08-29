@@ -4,13 +4,10 @@ import { useState, useEffect } from "react"
 import { ReviewService } from "@/services/reviewService"
 import type { Review } from "@/services/reviewService"
 
-export function useReviews(params?: {
+export function usePublicReviews(params?: {
   rating?: string
   category?: string
   channel?: string
-  source?: string
-  approved?: string
-  propertyId?: string
   sortBy?: string
   sortOrder?: string
   limit?: string
@@ -26,7 +23,7 @@ export function useReviews(params?: {
     setError(null)
 
     try {
-      const response = await ReviewService.fetchReviews(params)
+      const response = await ReviewService.fetchPublicReviews(params)
 
       if (response.success) {
         setReviews(response.data.reviews)

@@ -7,35 +7,34 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Star, Quote, Calendar, MapPin, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { ReviewService } from "@/services/reviewService"
 
 interface Review {
   id: string
   propertyId: string
   propertyName: string
   guestName: string
+  guestAvatar?: string
   rating: number
   comment: string
   date: string
   channel: string
-  categories: {
-    cleanliness: number
-    communication: number
-    checkIn: number
-    accuracy: number
-    location: number
-    value: number
-  }
-  hostResponse?: string
-  verified: boolean
-  approved: boolean
-  sentiment: "positive" | "neutral" | "negative"
+  source: string
+  category: string
+  isApproved: boolean
+  approvedBy?: string
+  approvedAt?: string
+  response?: string
+  responseDate?: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface ApiResponse {
   success: boolean
   data: {
     reviews: Review[]
-    summary: {
+    summary?: {
       totalReviews: number
       averageRating: number
       channelBreakdown: Record<string, number>
@@ -43,6 +42,11 @@ interface ApiResponse {
         positive: number
         neutral: number
         negative: number
+      }
+      ratingBreakdown: Record<number, number>
+      approvalBreakdown: {
+        approved: number
+        pending: number
       }
     }
   }
@@ -65,21 +69,12 @@ export default function PublicReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/reviews/hostaway")
-      const data: ApiResponse = await response.json()
+      const response = await ReviewService.fetchPublicReviews()
 
-      if (data.success) {
-        const approvedReviews = data.data.reviews.filter((review) => review.approved)
-        setReviews(approvedReviews)
-        setFilteredReviews(approvedReviews)
-        setSummary({
-          ...data.data.summary,
-          totalReviews: approvedReviews.length,
-          averageRating:
-            approvedReviews.length > 0
-              ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
-              : 0,
-        })
+      if (response.success) {
+        setReviews(response.data.reviews)
+        setFilteredReviews(response.data.reviews)
+        setSummary(response.data.summary)
       }
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
@@ -266,7 +261,11 @@ export default function PublicReviewsPage() {
                           <Users className="h-4 w-4" />
                           {review.guestName}
                           <Calendar className="h-4 w-4 ml-2" />
-                          {new Date(review.date).toLocaleDateString()}
+                          {new Date(review.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                         </CardDescription>
                       </div>
                       <Badge className={getChannelColor(review.channel)} variant="secondary">
@@ -304,32 +303,28 @@ export default function PublicReviewsPage() {
                       )}
                     </div>
 
-                    {review.hostResponse && (
+                    {review.response && (
                       <div className="bg-muted p-3 rounded-lg mt-4">
                         <p className="text-xs font-medium text-muted-foreground mb-1">Host Response:</p>
-                        <p className="text-sm text-card-foreground">{review.hostResponse}</p>
+                        <p className="text-sm text-card-foreground">{review.response}</p>
                       </div>
                     )}
 
-                    {/* Category highlights for 5-star reviews */}
+                    {/* Sentiment badge for 5-star reviews */}
                     {review.rating === 5 && (
                       <div className="mt-4 pt-4 border-t">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          {Object.entries(review.categories)
-                            .filter(([_, rating]) => rating === 5)
-                            .slice(0, 4)
-                            .map(([category, rating]) => (
-                              <div key={category} className="flex items-center justify-between">
-                                <span className="capitalize text-muted-foreground">
-                                  {category === "checkIn" ? "Check-in" : category}
-                                </span>
-                                <div className="flex items-center">
-                                  <Star className="h-3 w-3 fill-primary text-primary" />
-                                  <span className="ml-1 text-card-foreground">{rating}</span>
-                                </div>
-                              </div>
-                            ))}
-                        </div>
+                        <Badge 
+                          variant="secondary" 
+                          className={
+                            review.category === "positive" 
+                              ? "bg-green-100 text-green-800" 
+                              : review.category === "negative"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                          }
+                        >
+                          {review.category} review
+                        </Badge>
                       </div>
                     )}
                   </CardContent>
