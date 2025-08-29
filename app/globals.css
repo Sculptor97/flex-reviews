@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant hover (&:hover);
 
 :root {
   /* Updated to new minimal color palette with white base */
