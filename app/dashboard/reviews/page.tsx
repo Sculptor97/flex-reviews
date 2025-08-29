@@ -199,15 +199,15 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    <div className="p-4 sm:p-6 bg-white min-h-screen">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-brand-dark">Reviews ({filteredReviews.length})</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-brand-dark">Reviews ({filteredReviews.length})</h2>
             <p className="text-brand-dark/60">Manage and approve guest reviews</p>
           </div>
           {selectedReviews.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-brand-dark/60">{selectedReviews.length} selected</span>
               <Button
                 size="sm"
@@ -230,7 +230,7 @@ export default function ReviewsPage() {
             <CardTitle className="text-lg text-brand-dark">Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <div>
                 <Label htmlFor="search" className="text-brand-dark">
                   Search Reviews
@@ -347,29 +347,29 @@ export default function ReviewsPage() {
         {filteredReviews.map((review) => (
           <Card key={review.id} className="w-full bg-white border-brand-sage">
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div className="flex items-start space-x-3 min-w-0 flex-1">
                   <Checkbox
                     checked={selectedReviews.includes(review.id)}
                     onCheckedChange={() => toggleReviewSelection(review.id)}
                   />
-                  <div>
-                    <CardTitle className="text-lg text-brand-dark">{review.propertyName}</CardTitle>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg text-brand-dark truncate">{review.propertyName}</CardTitle>
                     <CardDescription className="text-brand-dark/60">
                       by {review.guestName} • {new Date(review.date).toLocaleDateString()}
                     </CardDescription>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getSentimentColor(review.category)}>{review.category}</Badge>
-                  <Badge className={getChannelColor(review.channel)}>{review.channel}</Badge>
+                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                  <Badge className={`${getSentimentColor(review.category)} flex-shrink-0`}>{review.category}</Badge>
+                  <Badge className={`${getChannelColor(review.channel)} flex-shrink-0`}>{review.channel}</Badge>
                   {review.isApproved ? (
-                    <Badge className="bg-brand-teal/10 text-brand-teal">
+                    <Badge className="bg-brand-teal/10 text-brand-teal flex-shrink-0">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Approved
                     </Badge>
                   ) : (
-                    <Badge className="bg-brand-sage text-brand-dark">
+                    <Badge className="bg-brand-sage text-brand-dark flex-shrink-0">
                       <Clock className="h-3 w-3 mr-1" />
                       Pending
                     </Badge>
@@ -396,8 +396,8 @@ export default function ReviewsPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center space-x-2 flex-wrap">
                   {!review.isApproved ? (
                     <Button
                       size="sm"

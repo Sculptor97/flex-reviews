@@ -124,21 +124,21 @@ export default function GoogleIntegrationPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row h-auto sm:h-16 items-start sm:items-center px-4 sm:px-6 py-4 sm:py-0 gap-4 sm:gap-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
             <Link href="/">
-              <h1 className="text-2xl font-bold text-card-foreground">Flex Living</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-card-foreground">Flex Living</h1>
             </Link>
-            <Badge variant="secondary">Google Integration Demo</Badge>
+            <Badge variant="secondary" className="w-fit">Google Integration Demo</Badge>
           </div>
-          <div className="ml-auto flex items-center space-x-4">
-            <Link href="/dashboard">
-              <Button variant="outline" size="sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto sm:ml-auto">
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 Manager Dashboard
               </Button>
             </Link>
-            <Link href="/reviews">
-              <Button variant="outline" size="sm">
+            <Link href="/reviews" className="w-full sm:w-auto">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 Public Reviews
               </Button>
             </Link>
@@ -146,24 +146,24 @@ export default function GoogleIntegrationPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Google Places API Integration</h1>
-          <p className="text-muted-foreground text-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-4">Google Places API Integration</h1>
+          <p className="text-muted-foreground text-base sm:text-lg">
             Explore how Google reviews can be integrated with your existing review management system.
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="demo">Live Demo</TabsTrigger>
-            <TabsTrigger value="combined">Combined Reviews</TabsTrigger>
-            <TabsTrigger value="documentation">Documentation</TabsTrigger>
+          <TabsList className="mb-6 w-full overflow-x-auto flex-wrap h-auto sm:h-9">
+            <TabsTrigger value="overview" className="flex-shrink-0">Overview</TabsTrigger>
+            <TabsTrigger value="demo" className="flex-shrink-0">Live Demo</TabsTrigger>
+            <TabsTrigger value="combined" className="flex-shrink-0">Combined Reviews</TabsTrigger>
+            <TabsTrigger value="documentation" className="flex-shrink-0">Documentation</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {/* Benefits */}
               <Card>
                 <CardHeader>
@@ -174,14 +174,14 @@ export default function GoogleIntegrationPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <Globe className="h-4 w-4 text-accent mt-1" />
+                    <Globe className="h-4 w-4 text-accent mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Broader Review Coverage</p>
                       <p className="text-sm text-muted-foreground">Access reviews from Google's vast user base</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Users className="h-4 w-4 text-accent mt-1" />
+                    <Users className="h-4 w-4 text-accent mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Verified Reviews</p>
                       <p className="text-sm text-muted-foreground">
@@ -190,7 +190,7 @@ export default function GoogleIntegrationPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Building className="h-4 w-4 text-accent mt-1" />
+                    <Building className="h-4 w-4 text-accent mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Property-Specific</p>
                       <p className="text-sm text-muted-foreground">Target specific property locations with Place IDs</p>
@@ -209,21 +209,21 @@ export default function GoogleIntegrationPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <Clock className="h-4 w-4 text-orange-600 mt-1" />
+                    <Clock className="h-4 w-4 text-orange-600 mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Maximum 5 Reviews</p>
                       <p className="text-sm text-muted-foreground">Places API returns only 5 most relevant reviews</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Zap className="h-4 w-4 text-orange-600 mt-1" />
+                    <Zap className="h-4 w-4 text-orange-600 mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Rate Limits</p>
                       <p className="text-sm text-muted-foreground">100 requests per 100 seconds per user</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <ExternalLink className="h-4 w-4 text-orange-600 mt-1" />
+                    <ExternalLink className="h-4 w-4 text-orange-600 mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">Attribution Required</p>
                       <p className="text-sm text-muted-foreground">Must display author links and Google branding</p>
@@ -256,8 +256,8 @@ export default function GoogleIntegrationPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-4">
-                    <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row items-end gap-4">
+                    <div className="flex-1 w-full">
                       <Label htmlFor="place-id">Google Place ID</Label>
                       <Input
                         id="place-id"
@@ -277,7 +277,7 @@ export default function GoogleIntegrationPage() {
                         </a>
                       </p>
                     </div>
-                    <Button onClick={fetchGoogleReviews} disabled={loading || !placeId.trim()}>
+                    <Button onClick={fetchGoogleReviews} disabled={loading || !placeId.trim()} className="w-full sm:w-auto">
                       {loading ? "Loading..." : "Fetch Reviews"}
                     </Button>
                   </div>
@@ -293,16 +293,16 @@ export default function GoogleIntegrationPage() {
                       <Card key={review.id}>
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
                               {review.authorPhoto && (
                                 <img
                                   src="/diverse-user-avatars.png"
                                   alt={review.guestName}
-                                  className="w-10 h-10 rounded-full"
+                                  className="w-10 h-10 rounded-full flex-shrink-0"
                                 />
                               )}
-                              <div>
-                                <CardTitle className="text-base">
+                              <div className="min-w-0 flex-1">
+                                <CardTitle className="text-base truncate">
                                   {review.authorUrl ? (
                                     <a
                                       href={review.authorUrl}
@@ -310,17 +310,17 @@ export default function GoogleIntegrationPage() {
                                       rel="noopener noreferrer"
                                       className="text-accent hover:underline flex items-center gap-1"
                                     >
-                                      {review.guestName}
-                                      <ExternalLink className="h-3 w-3" />
+                                      <span className="truncate">{review.guestName}</span>
+                                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
                                     </a>
                                   ) : (
-                                    review.guestName
+                                    <span className="truncate">{review.guestName}</span>
                                   )}
                                 </CardTitle>
                                 <CardDescription>{new Date(review.date).toLocaleDateString()}</CardDescription>
                               </div>
                             </div>
-                            <Badge className={getChannelColor(review.channel)}>{review.channel}</Badge>
+                            <Badge className={`${getChannelColor(review.channel)} flex-shrink-0`}>{review.channel}</Badge>
                           </div>
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
@@ -336,7 +336,7 @@ export default function GoogleIntegrationPage() {
                         </CardHeader>
                         <CardContent>
                           <p className="text-card-foreground text-sm leading-relaxed">{review.comment}</p>
-                          <div className="flex items-center gap-2 mt-3">
+                          <div className="flex items-center gap-2 mt-3 flex-wrap">
                             <Badge className={getSentimentColor(review.sentiment)} variant="secondary">
                               {review.sentiment}
                             </Badge>
@@ -365,7 +365,7 @@ export default function GoogleIntegrationPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={fetchCombinedReviews} disabled={loading || !placeId.trim()}>
+                  <Button onClick={fetchCombinedReviews} disabled={loading || !placeId.trim()} className="w-full sm:w-auto">
                     {loading ? "Loading..." : "Fetch Combined Reviews"}
                   </Button>
                 </CardContent>
@@ -373,9 +373,9 @@ export default function GoogleIntegrationPage() {
 
               {combinedReviews.length > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <h3 className="text-xl font-semibold text-foreground">All Reviews ({combinedReviews.length})</h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {["Hostaway", "Google", "Airbnb", "Booking.com", "VRBO"].map((channel) => {
                         const count = combinedReviews.filter((r) => r.channel === channel).length
                         return count > 0 ? (
@@ -392,11 +392,11 @@ export default function GoogleIntegrationPage() {
                       <Card key={review.id} className="h-fit">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-base">{review.guestName}</CardTitle>
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-base truncate">{review.guestName}</CardTitle>
                               <CardDescription>{new Date(review.date).toLocaleDateString()}</CardDescription>
                             </div>
-                            <Badge className={getChannelColor(review.channel)}>{review.channel}</Badge>
+                            <Badge className={`${getChannelColor(review.channel)} flex-shrink-0`}>{review.channel}</Badge>
                           </div>
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
@@ -412,7 +412,7 @@ export default function GoogleIntegrationPage() {
                         </CardHeader>
                         <CardContent>
                           <p className="text-card-foreground text-sm leading-relaxed line-clamp-3">{review.comment}</p>
-                          <div className="flex items-center gap-2 mt-3">
+                          <div className="flex items-center gap-2 mt-3 flex-wrap">
                             <Badge className={getSentimentColor(review.sentiment)} variant="secondary">
                               {review.sentiment}
                             </Badge>
@@ -453,7 +453,7 @@ export default function GoogleIntegrationPage() {
 
                   <div>
                     <h4 className="font-semibold mb-2">2. Environment Configuration</h4>
-                    <div className="bg-muted p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg overflow-x-auto">
                       <code className="text-sm">GOOGLE_PLACES_API_KEY=your_api_key_here</code>
                     </div>
                   </div>
@@ -464,7 +464,7 @@ export default function GoogleIntegrationPage() {
                       The API route handles Place ID validation, makes requests to Google Places API, and normalizes the
                       response format.
                     </p>
-                    <div className="bg-muted p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg overflow-x-auto">
                       <code className="text-sm">
                         GET /api/reviews/google?place_id=PLACE_ID&property_name=PROPERTY_NAME
                       </code>
