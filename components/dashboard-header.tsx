@@ -58,7 +58,7 @@ export function DashboardHeader({ title }: DashboardHeaderProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-brand-sage" />
             <DropdownMenuItem
-              className="hover:bg-brand-sage hover:text-brand-teal cursor-pointer text-red-600 hover:text-red-700"
+              className="hover:bg-brand-sage hover:text-brand-teal cursor-pointer text-red-600"
               onClick={handleSignOut}
             >
               <LogOut className="mr-2 h-4 w-4" />

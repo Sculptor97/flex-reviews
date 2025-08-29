@@ -34,7 +34,7 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button>
+              <Button className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
                 Manager Dashboard
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -53,7 +53,7 @@ export default function HomePage() {
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Link href="/dashboard">
-              <Button size="lg">
+              <Button size="lg" className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
                 Open Dashboard
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -75,7 +75,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card>
               <CardHeader>
-                <BarChart3 className="h-8 w-8 text-accent mb-2" />
+                <BarChart3 className="h-8 w-8 text-brand-teal mb-2" />
                 <CardTitle>Analytics & Insights</CardTitle>
                 <CardDescription>
                   Comprehensive analytics with rating distributions, sentiment analysis, and channel performance
@@ -86,7 +86,7 @@ export default function HomePage() {
 
             <Card>
               <CardHeader>
-                <MessageSquare className="h-8 w-8 text-accent mb-2" />
+                <MessageSquare className="h-8 w-8 text-brand-teal mb-2" />
                 <CardTitle>Review Management</CardTitle>
                 <CardDescription>
                   Advanced filtering, bulk actions, and approval workflows to efficiently manage reviews across all
@@ -97,7 +97,7 @@ export default function HomePage() {
 
             <Card>
               <CardHeader>
-                <CheckCircle className="h-8 w-8 text-accent mb-2" />
+                <CheckCircle className="h-8 w-8 text-brand-teal mb-2" />
                 <CardTitle>API Integration</CardTitle>
                 <CardDescription>
                   Seamless integration with Hostaway API, data normalization, and real-time synchronization.
@@ -107,7 +107,7 @@ export default function HomePage() {
 
             <Card>
               <CardHeader>
-                <Globe className="h-8 w-8 text-accent mb-2" />
+                <Globe className="h-8 w-8 text-brand-teal mb-2" />
                 <CardTitle>Google Reviews</CardTitle>
                 <CardDescription>
                   Integrate Google Places API to combine reviews from multiple sources for comprehensive coverage.

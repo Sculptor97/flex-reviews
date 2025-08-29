@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Quote, Calendar, MapPin, Users, ArrowRight } from "lucide-react"
+import { Star, Quote, Calendar, MapPin, Users, ArrowRight, Bed, Bath, Users as UsersIcon } from "lucide-react"
 import Link from "next/link"
 import { ReviewService } from "@/services/reviewService"
 
@@ -65,6 +65,33 @@ export default function PublicReviewsPage() {
     property: "all",
     sortBy: "recent",
   })
+
+  // Mock property data with Unsplash images
+  const property = {
+    id: 163276,
+    title: "Charming Apartment in Belsize Park",
+    subtitle: "Belsize Park, London — 1 guest",
+    pricePerNight: 120,
+    rating: 4.8,
+    reviewsCount: 42,
+    gallery: [
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
+    ],
+    details: {
+      bedrooms: 1,
+      bathrooms: 1,
+      guests: 1,
+      description:
+        "A bright and cozy apartment in the heart of Belsize Park. Close to transport, shops and parks.",
+      amenities: ["Wi‑Fi", "Kitchen", "Washer", "Heating"],
+    },
+    location: {
+      address: "Belsize Park, London",
+      mapEmbedSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.5!2d-0.1636!3d51.5475!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDMyJzUxLjAiTiAwc8KwMDknNDkuMCJX!5e0!3m2!1sen!2suk!4v1234567890"
+    }
+  }
 
   const fetchReviews = async () => {
     setLoading(true)
@@ -139,7 +166,116 @@ export default function PublicReviewsPage() {
       <div className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-card-foreground mb-4">Hear from Our Guests!</h1>
+            <h1 className="text-4xl font-bold text-card-foreground mb-4">Flex Living Reviews</h1>
+            <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Discover our featured properties and authentic guest experiences.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Featured Property Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-card-foreground mb-8 text-center">Featured Property</h2>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Left column - Gallery and details */}
+            <div className="md:col-span-2">
+              <div className="rounded-xl overflow-hidden shadow-lg bg-card">
+                {/* Gallery */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+                  {property.gallery.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt={`${property.title} image ${i + 1}`}
+                      className="w-full h-48 object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h3 className="text-2xl font-semibold text-card-foreground">{property.title}</h3>
+                <p className="text-sm text-muted-foreground">{property.subtitle}</p>
+
+                <div className="mt-4 flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-card-foreground">{property.rating}</span>
+                    <span className="text-sm text-muted-foreground">({property.reviewsCount} reviews)</span>
+                  </div>
+
+                  <div className="ml-auto text-right">
+                    <div className="text-lg font-bold text-card-foreground">${property.pricePerNight}</div>
+                    <div className="text-sm text-muted-foreground">per night</div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h4 className="font-semibold text-card-foreground mb-3">About this property</h4>
+                  <p className="text-sm text-muted-foreground mb-4">{property.details.description}</p>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Bed className="h-4 w-4 text-brand-teal" />
+                      <span className="text-card-foreground">{property.details.bedrooms} Bedroom{property.details.bedrooms !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Bath className="h-4 w-4 text-brand-teal" />
+                      <span className="text-card-foreground">{property.details.bathrooms} Bathroom{property.details.bathrooms !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <UsersIcon className="h-4 w-4 text-brand-teal" />
+                      <span className="text-card-foreground">{property.details.guests} Guest{property.details.guests !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="text-card-foreground">
+                      Amenities: {property.details.amenities.join(", ")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column - booking card + map */}
+            <aside className="space-y-6">
+              <Card className="border-2 border-brand-sage">
+                <CardContent className="p-6">
+                  <div className="flex items-baseline justify-between mb-4">
+                    <div>
+                      <div className="text-2xl font-bold text-card-foreground">${property.pricePerNight}</div>
+                      <div className="text-sm text-muted-foreground">per night</div>
+                    </div>
+                    <div className="text-sm text-card-foreground flex items-center gap-1">
+                      {property.rating} <Star className="h-4 w-4 fill-brand-teal text-brand-teal" />
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
+                    Book now
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-brand-sage">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-card-foreground mb-3">Location</h4>
+                  <p className="text-sm text-muted-foreground mb-4">{property.location.address}</p>
+                  {/* Map placeholder */}
+                  <div className="bg-brand-sage h-40 flex items-center justify-center text-xs text-muted-foreground rounded-lg">
+                    <MapPin className="h-6 w-6 mr-2" />
+                    Interactive Map
+                  </div>
+                </CardContent>
+              </Card>
+            </aside>
+          </div>
+        </section>
+
+        {/* Reviews Section Header */}
+        <section className="mb-12">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-card-foreground mb-4">Hear from Our Guests!</h2>
             <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
               Discover what makes Flex Living properties special through authentic reviews from our valued guests.
             </p>
@@ -153,7 +289,7 @@ export default function PublicReviewsPage() {
                       <Star
                         key={i}
                         className={`h-6 w-6 ${
-                          i < Math.round(summary.averageRating) ? "fill-primary text-primary" : "text-gray-300"
+                          i < Math.round(summary.averageRating) ? "fill-brand-teal text-brand-teal" : "text-gray-300"
                         }`}
                       />
                     ))}
@@ -174,10 +310,8 @@ export default function PublicReviewsPage() {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-4 mb-8">
           <div className="flex items-center space-x-2">
@@ -252,7 +386,7 @@ export default function PublicReviewsPage() {
               const shouldTruncate = review.comment.length > 150
 
               return (
-                <Card key={review.id} className="h-fit hover:shadow-lg transition-shadow duration-200">
+                <Card key={review.id} className="h-fit hover:shadow-lg transition-shadow duration-200 border-2 border-brand-sage">
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -278,7 +412,7 @@ export default function PublicReviewsPage() {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < review.rating ? "fill-primary text-primary" : "text-gray-300"}`}
+                            className={`h-4 w-4 ${i < review.rating ? "fill-brand-teal text-brand-teal" : "text-gray-300"}`}
                           />
                         ))}
                       </div>
@@ -288,7 +422,7 @@ export default function PublicReviewsPage() {
 
                   <CardContent>
                     <div className="relative">
-                      <Quote className="h-5 w-5 text-primary mb-2" />
+                      <Quote className="h-5 w-5 text-brand-teal mb-2" />
                       <p className="text-card-foreground leading-relaxed mb-4">
                         {isExpanded || !shouldTruncate ? review.comment : truncateText(review.comment)}
                       </p>
@@ -296,7 +430,7 @@ export default function PublicReviewsPage() {
                       {shouldTruncate && (
                         <button
                           onClick={() => toggleExpanded(review.id)}
-                          className="text-accent hover:text-accent/80 text-sm font-medium"
+                          className="text-brand-teal hover:text-brand-teal/80 text-sm font-medium"
                         >
                           {isExpanded ? "Show less" : "Read more"}
                         </button>
@@ -304,7 +438,7 @@ export default function PublicReviewsPage() {
                     </div>
 
                     {review.response && (
-                      <div className="bg-muted p-3 rounded-lg mt-4">
+                      <div className="bg-brand-cream p-3 rounded-lg mt-4">
                         <p className="text-xs font-medium text-muted-foreground mb-1">Host Response:</p>
                         <p className="text-sm text-card-foreground">{review.response}</p>
                       </div>
@@ -335,20 +469,20 @@ export default function PublicReviewsPage() {
         )}
 
         {/* Call to Action */}
-        <div className="text-center bg-card rounded-lg p-8">
+        <div className="text-center bg-card rounded-lg p-8 border-2 border-brand-sage">
           <h2 className="text-2xl font-bold text-card-foreground mb-4">Ready to Experience Flex Living?</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Join thousands of satisfied guests who have made Flex Living their home away from home. Book your perfect
             stay today.
           </p>
           <div className="flex items-center justify-center space-x-4">
-            <Button size="lg" className="bg-primary hover:bg-primary/90">
+            <Button size="lg" className="bg-brand-teal text-brand-cream hover:bg-brand-cream hover:text-brand-teal">
               <MapPin className="mr-2 h-5 w-5" />
               Browse Properties
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Link href="/dashboard">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-brand-cream">
                 Manager Dashboard
               </Button>
             </Link>
